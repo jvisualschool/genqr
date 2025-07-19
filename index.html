@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>genQR - QR 코드 생성 및 스캔</title>
+
+    <!-- External Libraries - 더 안정적인 CDN으로 변경 -->
+    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="particles"></div>
+        <div class="grid-overlay"></div>
+        <div class="gradient-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="app-title">
+                    <h1><span class="gradient-text">gen</span>QR</h1>
+                    <p class="subtitle">간편한 QR 코드 생성 및 스캔</p>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button id="themeBtn" class="simple-theme-btn" onclick="changeTheme()">
+                    🌙 / ☀️
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tab Navigation -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="generate" onclick="switchToTab('generate')">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR 생성</span>
+                    <div class="tab-indicator"></div>
+                </button>
+                <button class="tab-btn" data-tab="scan" onclick="switchToTab('scan')">
+                    <i class="fas fa-camera"></i>
+                    <span>QR 스캔</span>
+                    <div class="tab-indicator"></div>
+                </button>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- Generate Tab -->
+                <div id="generate-tab" class="tab-panel active">
+                    <div class="panel-grid">
+                        <!-- Input Card -->
+                        <div class="glass-card input-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-edit"></i> QR 코드 생성</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="qrForm" class="qr-form">
+                                    <div class="input-group">
+                                        <label for="urlInput">URL 또는 텍스트</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="urlInput" placeholder="https://example.com" required>
+                                            <div class="input-glow"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="input-group">
+                                            <label for="qrSize">크기</label>
+                                            <select id="qrSize" class="custom-select">
+                                                <option value="256">256x256</option>
+                                                <option value="512" selected>512x512</option>
+                                                <option value="1024">1024x1024</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="qrColor">QR 색상</label>
+                                            <div class="color-picker">
+                                                <input type="color" id="qrColor" value="#000000">
+                                                <div class="color-preview"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="bgColor">배경 색상</label>
+                                            <div class="color-picker">
+                                                <input type="color" id="bgColor" value="#ffffff">
+                                                <div class="color-preview"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="generate-btn" onclick="event.preventDefault(); app.generateQR();">
+                                        <span class="btn-text">QR 코드 생성</span>
+                                        <div class="btn-glow"></div>
+                                        <div class="btn-particles"></div>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Preview Card -->
+                        <div class="glass-card preview-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-eye"></i> 미리보기</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="qrPreview" class="qr-preview">
+                                    <div class="preview-placeholder">
+                                        <i class="fas fa-qrcode"></i>
+                                        <p>QR 코드가 여기에 표시됩니다</p>
+                                    </div>
+                                </div>
+
+                                <div id="downloadSection" class="download-section" style="display: none;">
+                                    <div class="download-buttons">
+                                        <button class="download-btn" data-format="png">
+                                            <i class="fas fa-image"></i> PNG
+                                        </button>
+                                        <button class="download-btn" data-format="jpg">
+                                            <i class="fas fa-file-image"></i> JPG
+                                        </button>
+                                        <button class="download-btn" data-format="svg">
+                                            <i class="fas fa-vector-square"></i> SVG
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan Tab -->
+                <div id="scan-tab" class="tab-panel">
+                    <div id="dropZone" class="drop-zone">
+                        <div class="drop-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>QR 이미지 업로드</h4>
+                            <p>QR 코드 이미지를 드래그하거나 클릭하여 업로드하세요</p>
+                            <input type="file" id="fileInput" accept="image/*" hidden>
+                            <button class="upload-btn">
+                                <i class="fas fa-folder-open"></i> 파일 선택
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="scanResult" class="scan-result" style="display: none;">
+                        <div class="result-header">
+                            <h4><i class="fas fa-check-circle"></i> 스캔 결과</h4>
+                        </div>
+                        <div class="result-content">
+                            <div id="resultText" class="result-text"></div>
+                            <button id="copyResult" class="copy-btn">
+                                <i class="fas fa-copy"></i> 복사
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <p class="loading-text">처리 중...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script>
+        // 간단한 테마 변경 함수
+        function changeTheme() {
+            console.log('🎨 테마 변경!');
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('qr-app-theme', newTheme);
+            
+            console.log(`✅ 테마 변경: ${current || 'light'} → ${newTheme}`);
+        }
+
+        // 간단한 탭 전환 함수
+        function switchToTab(tabName) {
+            console.log('🔄 탭 전환:', tabName);
+            
+            // 모든 탭 버튼에서 active 클래스 제거
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 탭 버튼에 active 클래스 추가
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            if (tabName === 'scan') {
+                // QR 스캔 탭: QR 생성 탭 완전히 제거하고 QR 스캔 탭만 표시
+                const generateTab = document.getElementById('generate-tab');
+                if (generateTab) {
+                    generateTab.style.display = 'none';
+                    generateTab.style.visibility = 'hidden';
+                    generateTab.style.opacity = '0';
+                    generateTab.style.position = 'absolute';
+                    generateTab.style.left = '-9999px';
+                    generateTab.style.top = '-9999px';
+                    generateTab.style.width = '0';
+                    generateTab.style.height = '0';
+                    generateTab.style.overflow = 'hidden';
+                }
+                
+                const scanTab = document.getElementById('scan-tab');
+                if (scanTab) {
+                    scanTab.style.display = 'block';
+                    scanTab.style.visibility = 'visible';
+                    scanTab.style.opacity = '1';
+                    scanTab.style.position = 'static';
+                    scanTab.style.left = 'auto';
+                    scanTab.style.top = 'auto';
+                    scanTab.style.width = 'auto';
+                    scanTab.style.height = 'auto';
+                    scanTab.style.overflow = 'visible';
+                }
+                
+                // 스캔 결과 초기화
+                const scanResult = document.getElementById('scanResult');
+                if (scanResult) {
+                    scanResult.style.display = 'none';
+                }
+            } else if (tabName === 'generate') {
+                // QR 생성 탭: QR 스캔 탭 완전히 숨기고 QR 생성 탭 복원
+                const scanTab = document.getElementById('scan-tab');
+                if (scanTab) {
+                    scanTab.style.display = 'none';
+                    scanTab.style.visibility = 'hidden';
+                    scanTab.style.opacity = '0';
+                    scanTab.style.position = 'absolute';
+                    scanTab.style.left = '-9999px';
+                    scanTab.style.top = '-9999px';
+                    scanTab.style.width = '0';
+                    scanTab.style.height = '0';
+                    scanTab.style.overflow = 'hidden';
+                }
+                
+                const generateTab = document.getElementById('generate-tab');
+                if (generateTab) {
+                    generateTab.style.display = 'block';
+                    generateTab.style.visibility = 'visible';
+                    generateTab.style.opacity = '1';
+                    generateTab.style.position = 'static';
+                    generateTab.style.left = 'auto';
+                    generateTab.style.top = 'auto';
+                    generateTab.style.width = 'auto';
+                    generateTab.style.height = 'auto';
+                    generateTab.style.overflow = 'visible';
+                }
+                
+                // QR 생성 탭 초기화
+                const scanResult = document.getElementById('scanResult');
+                if (scanResult) {
+                    scanResult.style.display = 'none';
+                }
+                
+                const qrPreview = document.getElementById('qrPreview');
+                if (qrPreview) {
+                    qrPreview.innerHTML = `
+                        <div class="preview-placeholder">
+                            <i class="fas fa-qrcode"></i>
+                            <p>QR 코드가 여기에 표시됩니다</p>
+                        </div>
+                    `;
+                }
+                
+                const downloadSection = document.getElementById('downloadSection');
+                if (downloadSection) {
+                    downloadSection.style.display = 'none';
+                }
+                
+                const urlInput = document.getElementById('urlInput');
+                if (urlInput) {
+                    urlInput.value = '';
+                }
+            }
+            
+            console.log('✅ 탭 전환 완료:', tabName);
+        }
+
+        // QRCode 라이브러리 로딩 확인
+        window.addEventListener('load', () => {
+            console.log('페이지 로딩 완료');
+            console.log('QRCode 라이브러리:', typeof QRCode !== 'undefined' ? '✅ 로딩됨' : '❌ 로딩 실패');
+            console.log('jsQR 라이브러리:', typeof jsQR !== 'undefined' ? '✅ 로딩됨' : '❌ 로딩 실패');
+        });
+    </script>
+    <script src="static/js/app.js"></script>
+</body>
+</html>

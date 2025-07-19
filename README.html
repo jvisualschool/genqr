@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>genQR - 프로젝트 문서</title>
+    <style>
+        :root {
+            --primary-color: #4c51bf;
+            --secondary-color: #667eea;
+            --text-color: #2d3748;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+        }
+
+        [data-theme="dark"] {
+            --text-color: #f7fafc;
+            --bg-color: #1a202c;
+            --card-bg: #2d3748;
+            --border-color: #4a5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+
+        .badge-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .toc {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .toc ul {
+            list-style-type: none;
+            margin-left: 0;
+        }
+
+        .toc a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            padding: 0.3rem 0;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, transparent 0%, rgba(76, 81, 191, 0.1) 50%, transparent 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border-top: 3px solid var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+        }
+
+        .scroll-to-top:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+    <button class="scroll-to-top" onclick="scrollToTop()" id="scrollBtn">↑</button>
+
+    <div class="container">
+        <header>
+            <h1>genQR</h1>
+            <p>간편한 QR 코드 생성 및 스캔</p>
+        </header>
+
+        <div class="toc card">
+            <h3>📋 목차</h3>
+            <ul>
+                <li><a href="#features">✨ 주요 기능</a></li>
+                <li><a href="#getting-started">🚀 시작하기</a></li>
+                <li><a href="#usage">📖 사용법</a></li>
+                <li><a href="#shortcuts">⌨️ 키보드 단축키</a></li>
+                <li><a href="#tech-stack">🛠️ 기술 스택</a></li>
+                <li><a href="#features-detail">🌟 특징</a></li>
+                <li><a href="#compatibility">🔧 브라우저 호환성</a></li>
+                <li><a href="#security">🔒 보안 및 개인정보</a></li>
+            </ul>
+        </div>
+
+        <div class="highlight">
+            <p><strong>genQR</strong>은 간편하고 빠른 QR 코드 생성 및 스캔을 위한 웹 애플리케이션입니다. 직관적인 인터페이스와 강력한 기능으로 누구나 쉽게 QR 코드를 만들고 읽을 수 있습니다.</p>
+        </div>
+
+        <section id="features" class="card">
+            <h2>✨ 주요 기능</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎨 QR 코드 생성</h4>
+                    <ul>
+                        <li><strong>URL/텍스트 입력</strong>: 웹사이트 주소나 텍스트를 QR 코드로 변환</li>
+                        <li><strong>크기 선택</strong>: 256x256, 512x512, 1024x1024 픽셀 지원</li>
+                        <li><strong>색상 커스터마이징</strong>: QR 코드 색상과 배경색 자유롭게 변경</li>
+                        <li><strong>다중 포맷 다운로드</strong>: PNG, JPG, SVG 형식으로 다운로드</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>📱 QR 코드 스캔</h4>
+                    <ul>
+                        <li><strong>파일 업로드</strong>: QR 코드 이미지 파일을 업로드하여 스캔</li>
+                        <li><strong>드래그 앤 드롭</strong>: 이미지를 간편하게 끌어서 놓기</li>
+                        <li><strong>즉시 결과 표시</strong>: 스캔된 내용을 바로 확인</li>
+                        <li><strong>클립보드 복사</strong>: 결과를 한 번의 클릭으로 복사</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>🌙 사용자 경험</h4>
+                    <ul>
+                        <li><strong>다크/라이트 모드</strong>: 취향에 맞는 테마 선택</li>
+                        <li><strong>반응형 디자인</strong>: 모바일, 태블릿, 데스크톱 모든 기기 지원</li>
+                        <li><strong>키보드 단축키</strong>: 빠른 작업을 위한 단축키 지원</li>
+                        <li><strong>깔끔한 인터페이스</strong>: 직관적이고 모던한 디자인</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="getting-started" class="card">
+            <h2>🚀 시작하기</h2>
+            
+            <h3>1. 다운로드 및 실행</h3>
+            <pre><code># 프로젝트 다운로드
+git clone https://github.com/jvisualschool/genqr.git
+cd genqr
+
+# 빠른 시작 (추천)
+./start.sh
+
+# 또는 직접 Python 서버 실행
+python3 server.py
+
+# 또는 간단한 HTTP 서버
+python3 -m http.server 8000</code></pre>
+
+            <h3>2. 브라우저에서 접속</h3>
+            <pre><code>http://localhost:8000</code></pre>
+
+            <h3>3. 바로 사용 가능!</h3>
+            <ul>
+                <li><strong>QR 생성</strong>: URL 입력 → 색상 선택 → 생성 버튼 클릭</li>
+                <li><strong>QR 스캔</strong>: 스캔 탭 → 이미지 파일 업로드</li>
+            </ul>
+        </section>
+
+        <section id="usage" class="card">
+            <h2>📖 사용법</h2>
+            
+            <h3>QR 코드 생성하기</h3>
+            <ol>
+                <li><strong>QR 생성</strong> 탭 선택</li>
+                <li>URL 또는 텍스트 입력</li>
+                <li>원하는 크기 선택 (256px ~ 1024px)</li>
+                <li>QR 코드 색상 선택</li>
+                <li>배경 색상 선택</li>
+                <li><strong>QR 코드 생성</strong> 버튼 클릭</li>
+                <li>생성된 QR 코드를 PNG/JPG/SVG로 다운로드</li>
+            </ol>
+
+            <h3>QR 코드 스캔하기</h3>
+            <ol>
+                <li><strong>QR 스캔</strong> 탭 선택</li>
+                <li><strong>파일 선택</strong> 버튼 클릭하거나 이미지 드래그 앤 드롭</li>
+                <li>QR 코드가 포함된 이미지 파일 선택</li>
+                <li>자동으로 스캔되어 결과 표시</li>
+                <li><strong>복사</strong> 버튼으로 클립보드에 복사</li>
+            </ol>
+        </section>
+
+        <section id="shortcuts" class="card">
+            <h2>⌨️ 키보드 단축키</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>단축키</th>
+                        <th>기능</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Ctrl/Cmd + 1</code></td>
+                        <td>QR 생성 탭으로 이동</td>
+                    </tr>
+                    <tr>
+                        <td><code>Ctrl/Cmd + 2</code></td>
+                        <td>QR 스캔 탭으로 이동</td>
+                    </tr>
+                    <tr>
+                        <td><code>Ctrl/Cmd + Enter</code></td>
+                        <td>QR 코드 생성 (생성 탭에서)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="tech-stack" class="card">
+            <h2>🛠️ 기술 스택</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Frontend</h4>
+                    <div class="badge badge-primary">HTML5</div>
+                    <div class="badge badge-primary">CSS3</div>
+                    <div class="badge badge-primary">JavaScript (ES6+)</div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>라이브러리</h4>
+                    <div class="badge badge-success">QRServer API</div>
+                    <div class="badge badge-success">jsQR</div>
+                    <div class="badge badge-success">Font Awesome</div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>스타일링</h4>
+                    <div class="badge badge-warning">CSS Custom Properties</div>
+                    <div class="badge badge-warning">Flexbox</div>
+                    <div class="badge badge-warning">Grid</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features-detail" class="card">
+            <h2>🌟 특징</h2>
+            
+            <h3>색상 커스터마이징</h3>
+            <ul>
+                <li>16진수 색상 선택기</li>
+                <li>실시간 미리보기</li>
+                <li>다운로드 시에도 색상 유지</li>
+            </ul>
+
+            <h3>파일 형식 지원</h3>
+            <ul>
+                <li><strong>PNG</strong>: 투명 배경 지원, 웹 최적화</li>
+                <li><strong>JPG</strong>: 작은 파일 크기, 인쇄용</li>
+                <li><strong>SVG</strong>: 벡터 형식, 무한 확대 가능</li>
+            </ul>
+
+            <h3>접근성</h3>
+            <ul>
+                <li>키보드 네비게이션 지원</li>
+                <li>고대비 모드 지원</li>
+                <li>화면 리더 친화적</li>
+                <li>모션 감소 옵션 지원</li>
+            </ul>
+        </section>
+
+        <section id="compatibility" class="card">
+            <h2>🔧 브라우저 호환성</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>브라우저</th>
+                        <th>버전</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chrome</td>
+                        <td>80+</td>
+                        <td><span class="badge badge-success">완전 지원</span></td>
+                    </tr>
+                    <tr>
+                        <td>Firefox</td>
+                        <td>75+</td>
+                        <td><span class="badge badge-success">완전 지원</span></td>
+                    </tr>
+                    <tr>
+                        <td>Safari</td>
+                        <td>13+</td>
+                        <td><span class="badge badge-success">완전 지원</span></td>
+                    </tr>
+                    <tr>
+                        <td>Edge</td>
+                        <td>80+</td>
+                        <td><span class="badge badge-success">완전 지원</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="security" class="card">
+            <h2>🔒 보안 및 개인정보</h2>
+            
+            <div class="highlight">
+                <h3>개인정보 보호</h3>
+                <ul>
+                    <li><strong>로컬 처리</strong>: 입력 데이터는 브라우저에서만 처리</li>
+                    <li><strong>외부 전송 없음</strong>: QR 생성을 위한 API 호출 외 데이터 전송 없음</li>
+                    <li><strong>저장 안함</strong>: 개인 데이터를 서버에 저장하지 않음</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <h3>🙏 감사의 말</h3>
+            <p>다음 오픈소스 프로젝트들에 감사드립니다:</p>
+            <div>
+                <span class="badge badge-primary">QRServer API</span>
+                <span class="badge badge-primary">jsQR</span>
+                <span class="badge badge-primary">Font Awesome</span>
+                <span class="badge badge-primary">Google Fonts</span>
+            </div>
+            <p style="margin-top: 2rem;"><strong>genQR</strong>로 QR 코드를 더욱 쉽고 빠르게 만들어보세요! 🚀</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('genqr-docs-theme', newTheme);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollBtn');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        // 테마 초기화
+        const savedTheme = localStorage.getItem('genqr-docs-theme');
+        if (savedTheme) {
+            document.body.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
